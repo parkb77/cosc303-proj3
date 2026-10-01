@@ -10,6 +10,7 @@ using namespace std;
 class Superball {
   public:
     Superball(int argc, char **argv);
+	void analyze_superball();
     int r;
     int c;
     int mss;
@@ -77,14 +78,75 @@ Superball::Superball(int argc, char **argv)
   }
 }
 
+void Superball::analyze_superball() { 
+
+	int n = r * c;
+	DisjointSetByRankWPC ds(n); 
+
+	//Merge neighboring cells of same color
+	for (int i = 0; i  < r; i++) { 
+		for (int j = 0; j < c; j++) {
+			int idx = i*c +j;
+			if (board[idx] == '.' || board[idx] == '*') {
+				continue;
+			}
+
+			//Check right neighbor if same color, merge if not in same group
+			if (j + 1 < c && board[idx + 1] == board[idx]) { 
+				int a = ds.Find(idx);
+				int b = ds.Find(idx + 1); 
+				if (a != b) { 
+					ds.Union(a,b);
+				}
+			}
+
+			//Check lower neighbor, merge if same color
+			if (i + 1 < r && board[idx + c] == board[idx]) { 
+				int a = ds.Find(idx);
+				int b = ds.Find(idx + c); 
+				if (a != b) { 
+					ds.Union(a, b);
+				}
+			}
+		}
+	}
+
+
+	//Determine group size and if it touches a scoring cell
+	vector <int> sizes(n, 0);
+	vector <int> goalcell(n, -1);
+
+	for (int idx = 0; idx < n; idx++) { 
+		if (board[idx] == '.' || board[idx] == '*') { 
+			continue;
+		}
+		int root = ds.Find(idx);
+		sizes[root]++;
+		if (goals[idx] && goalcell[root] == -1) { 
+			goalcell[root] = idx;
+		}
+	}
+
+	//Print all groups big enough with scoring cell
+	printf("Scoring sets:\n");
+	for (int root = 0; root < n; root++) { 
+		if (sizes[root] >= mss && goalcell[root] != -1) { 
+			printf("  Size: %2d  Char: %c  Scoring Cell: %d,%d\n",
+					sizes[root],
+					board[root],
+					goalcell[root] / c,
+					goalcell[root] % c);
+		}
+	}
+}
+
+
 int main(int argc, char **argv)
 {
   Superball *s;
  
   s = new Superball(argc, argv);
-
-  DisjointSetByRankWPC ds(s->r*s->c);
-
-  ds.Print();
+  s->analyze_superball();
+  
   
 }
