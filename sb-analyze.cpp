@@ -1,3 +1,6 @@
+//Name: Parker Babb
+//Project3 Part - A 
+
 #include <cstdio>
 #include <cstring>
 #include <iostream>
@@ -83,9 +86,11 @@ void Superball::analyze_superball() {
 	int n = r * c;
 	DisjointSetByRankWPC ds(n); 
 
-	//Merge neighboring cells of same color
+	//Merge neighboring cells of same color. Checking left and upper neighbors redundant
 	for (int i = 0; i  < r; i++) { 
 		for (int j = 0; j < c; j++) {
+
+			//Google for common ways of converting 2d index -> 1d
 			int idx = i*c +j;
 			if (board[idx] == '.' || board[idx] == '*') {
 				continue;
